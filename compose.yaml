@@ -1,0 +1,12 @@
+services:
+  node:
+    build: .
+    develop:
+     watch:
+      - action: sync
+        path: .
+        target: /code
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: password
