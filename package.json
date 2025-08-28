@@ -1,0 +1,27 @@
+{
+  "name": "discord-word-counter",
+  "version": "1.0.0",
+  "description": "Keeps track of all your messages sent in Discord and will quickly reply with most recent usages and count of the words",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shotz5/discord-word-counter.git"
+  },
+  "keywords": [
+    "discord",
+    "word",
+    "counter"
+  ],
+  "author": "Shotz5",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Shotz5/discord-word-counter/issues"
+  },
+  "homepage": "https://github.com/Shotz5/discord-word-counter#readme",
+  "dependencies": {
+    "discord.js": "^14.22.1"
+  }
+}
