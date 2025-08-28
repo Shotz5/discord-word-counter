@@ -1,11 +1,12 @@
 FROM node:22-alpine
 
-ENV DB_HOST=localhost
-ENV DB_PORT=5432
-ENV DB_USER=postgres
-ENV DB_PASS=password
+ENV DB_HOST=${DB_HOST}
+ENV DB_PORT=${DB_PORT}
+ENV DB_USER=${DB_USER}
+ENV DB_PASS=${DB_PASS}
+ENV TOKEN=${TOKEN}
 
 WORKDIR /code
-RUN npm install
+COPY . .
 
-CMD [ "node", "app.js" ]
+CMD [ "npm", "run", "dev" ]

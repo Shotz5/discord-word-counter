@@ -2,9 +2,11 @@
   "name": "discord-word-counter",
   "version": "1.0.0",
   "description": "Keeps track of all your messages sent in Discord and will quickly reply with most recent usages and count of the words",
-  "main": "app.js",
+  "main": "dist/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "dev": "ts-node ./src/app.ts"
   },
   "repository": {
     "type": "git",
@@ -21,7 +23,14 @@
     "url": "https://github.com/Shotz5/discord-word-counter/issues"
   },
   "homepage": "https://github.com/Shotz5/discord-word-counter#readme",
+  "type": "module",
   "dependencies": {
-    "discord.js": "^14.22.1"
+    "discord.js": "^14.22.1",
+    "postgres": "^3.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
 }
