@@ -3,6 +3,7 @@ import type { CommandType } from "../commands.ts";
 import sql from "../postgres.ts";
 
 class DiscordMessage {
+    id: string
     guildId: string
     channelId: string
     sentBy: string
@@ -12,6 +13,7 @@ class DiscordMessage {
     createdDate: number
 
     constructor(message: DiscordMessage) {
+        this.id = message.id,
         this.guildId = message.guildId,
         this.channelId = message.channelId,
         this.sentBy = message.sentBy,
@@ -53,10 +55,12 @@ async function getAllMessages(channelId: string, client: Client): Promise<boolea
 
     while (messagePointer) {
         let messages = await channel.messages.fetch({ limit: 100, before: messagePointer.id });
-        const savedMessagesToDB = await saveMessages(messages.values());
+        messagePointer = 0 < messages.size ? messages.at(messages.size - 1) : null;
 
-        if (!savedMessagesToDB) return false;
-        messagePointer = 0 < messages.size ? messages.at(messages.size - 1) : null
+        if (messagePointer) {
+            const savedMessagesToDB = await saveMessages(messages.values());
+            if (!savedMessagesToDB) return false;
+        }
     }
     return true;
 }
@@ -65,6 +69,7 @@ async function saveMessages(messages: MapIterator<Message<true>>): Promise<boole
     let transformedMessages: DiscordMessage[] = [];
     messages.forEach(message => transformedMessages.push(
         new DiscordMessage({
+            id: message.id,
             guildId: message.guildId,
             channelId: message.channelId,
             sentBy: message.author.username,
@@ -77,13 +82,12 @@ async function saveMessages(messages: MapIterator<Message<true>>): Promise<boole
     if (transformedMessages.length === 0) return false;
 
     const result = await sql`
-        INSERT INTO messages ${ sql(transformedMessages) }
+        INSERT INTO messages ${ sql(transformedMessages) } ON CONFLICT DO NOTHING;
     `.catch((error) => console.error(error));
 
     if (!result) return false;
 
-    console.log(`Inserted ${result.count} rows`);
-    if (result.count != transformedMessages.length) return false;
+    console.log(`Transformed messages length: ${transformedMessages.length}, Inserted ${result.count} rows`);
 
     return true;
 }
