@@ -7,3 +7,4 @@ export type CommandType = {
 
 export { Harvest } from "./commands/harvest.ts";
 export { MessageCount } from "./commands/message-count.ts";
+export { StopListening } from "./commands/stop-listening.ts";
