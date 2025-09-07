@@ -1,1 +1,3 @@
 CREATE TABLE messages (id VARCHAR(255) PRIMARY KEY, "guildId" VARCHAR(255) NOT NULL, "channelId" VARCHAR(255) NOT NULL, "sentBy" VARCHAR(255) NOT NULL, "sentByDisplayName" VARCHAR(255) NOT NULL, "sentAt" BIGINT NOT NULL, "messageContent" TEXT, "createdDate" BIGINT NOT NULL);
+
+CREATE TABLE channels (id VARCHAR(255) PRIMARY KEY, "guildId" VARCHAR(255) NOT NULL, "isListening" BOOLEAN NOT NULL, "createdDate" BIGINT NOT NULL);
