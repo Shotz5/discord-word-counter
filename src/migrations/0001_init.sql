@@ -1,0 +1,1 @@
+CREATE TABLE messages (id SERIAL PRIMARY KEY, "guildId" VARCHAR(255) NOT NULL, "channelId" VARCHAR(255) NOT NULL, "sentBy" VARCHAR(255) NOT NULL, "sentByDisplayName" VARCHAR(255) NOT NULL, "sentAt" BIGINT NOT NULL, "messageContent" TEXT, "createdDate" BIGINT NOT NULL);
