@@ -3,6 +3,12 @@ import type { CommandType } from "../commands.ts";
 import sql from "../postgres.ts";
 import { addErrorEmbed, addSuccessEmbed } from "../common.ts";
 
+const UpdateStatus = {
+    Updated: "UPDATED",
+    NotExists: "NOT_EXISTS",
+    Failed: "FAILED"
+}
+
 export const StopListening: CommandType = {
     command: new SlashCommandBuilder()
         .setName('stop-listening')
@@ -14,8 +20,11 @@ export const StopListening: CommandType = {
         }
 
         const result = await updateChannel(interaction.channelId, interaction.guildId);
-        if (!result) {
+        if (result === UpdateStatus.Failed) {
             await interaction.reply({ embeds: [addErrorEmbed("An error occurred while trying to stop listening to this channel.")] });
+            return;
+        } else if (result === UpdateStatus.NotExists) {
+            await interaction.reply({ embeds: [addSuccessEmbed("This channel is not being listened to.")] });
             return;
         }
 
@@ -23,7 +32,7 @@ export const StopListening: CommandType = {
     }
 }
 
-async function updateChannel(channelId: string, guildId: string): Promise<boolean> {
+async function updateChannel(channelId: string, guildId: string): Promise<string> {
     const result = await sql`
         UPDATE channels
         SET "isListening" = false
@@ -31,5 +40,7 @@ async function updateChannel(channelId: string, guildId: string): Promise<boolea
         AND "guildId" = ${guildId}
     `.catch((error) => console.error(error));
 
-    return (typeof result !== "undefined");
+    if (!result) return UpdateStatus.Failed;
+    if (result.count === 0) return UpdateStatus.NotExists;
+    else return UpdateStatus.Updated;
 }

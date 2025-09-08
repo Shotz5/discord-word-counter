@@ -60,19 +60,22 @@ export async function saveMessages(messages: Message<true>[]): Promise<boolean> 
     return true;
 }
 
-export async function addChannelToListener(channelId: string, guildId: string): Promise<boolean> {
+export async function addChannelToListener(channelId: string, guildId: string, updateOnConflict: boolean = false): Promise<boolean> {
     const result = await sql`
-        INSERT INTO channels ${ sql({
-            id: channelId,
-            guildId: guildId,
-            isListening: true,
-            createdDate: Date.now()
-        }) } ON CONFLICT DO NOTHING;
+        INSERT INTO channels ${ sql(
+            {
+                id: channelId,
+                guildId: guildId,
+                isListening: true,
+                createdDate: Date.now()
+            }
+        )}
+        ON CONFLICT ${ updateOnConflict ? sql`(id) DO UPDATE SET "isListening" = true WHERE channels.id = ${channelId} AND channels."guildId" = ${guildId}` : sql`DO NOTHING` }
     `.catch((error) => console.error(error));
 
     if (!result) return false;
 
-    console.log(`Successfully inserted ${channelId} to DB.`);
+    console.log(`Successfully upserted ${channelId} to DB.`);
 
     return true;
 }
