@@ -1,17 +1,16 @@
 import { Client, Collection, Events, GatewayIntentBits, MessageFlags } from 'discord.js';
 import * as Commands from "./commands.ts"
 import sql from './postgres.ts';
-import { exit } from 'process';
 import { saveMessages, type ChannelType } from './common.ts';
+import { executeMigrations } from './migrations.ts';
 
 const token = process.env.TOKEN;
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 const commandCollection = new Collection<string, Commands.CommandType>();
 
-const dbConnectTest = await sql`SELECT 1`
-    .catch((error) => console.error(error));
-if (!dbConnectTest) exit(1);
+const dbConnectionTest = await sql`SELECT 1`;
+const migrationResults = await executeMigrations();
 
 for (const command of Object.values(Commands)) {
     commandCollection.set(command.command.name, command);

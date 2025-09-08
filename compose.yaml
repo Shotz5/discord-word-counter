@@ -12,6 +12,8 @@ services:
       - action: sync+restart
         path: .
         target: /code
+    depends_on:
+      - postgres
   postgres:
     image: postgres:latest
     environment:

@@ -1,21 +1,49 @@
-// import sql from "./postgres.js";
+import { readdirSync, readFileSync } from "fs";
+import sql from "./postgres.ts";
 
-// type Migrations = {
-//     id: number,
-//     file_name: number,
-//     date_executed: string,
-// }
+type Migration = {
+    id: number,
+    fileName: string,
+    createdDate: string,
+}
 
-// const MigrationsTable = "migrations";
-// const fileDir = "./migrations";
+const migrationsDir = "./src/migrations";
 
-// async function getExecutedMigrations() {
-//     const statement = () => sql<Migrations[]>`
-//         SELECT * FROM ${MigrationsTable}
-//     `
-//     const fileDir = 
+export async function executeMigrations(): Promise<boolean> {
+    const migrationsRan = await sql<Migration[]>`SELECT * FROM migrations`
+        .catch((error) => console.error(error));
+    const fileNamesRan = [];
+    if (!migrationsRan) {
+        console.warn("Unable to get migrations from table, assuming this is first migrations run.");
+    } else {
+        for (const migration of migrationsRan) {
+            fileNamesRan.push(migration.fileName);
+        }
+    }
 
-//     const results = await statement();
-// }
+    const files = readdirSync(migrationsDir).sort();
+    for (const file of files) {
+        if (fileNamesRan.includes(file)) {
+            console.log(`Already ran file ${file}`);
+            continue;
+        }
 
-// Building out migrations functionality may be difficult, I'm saving it for a future problem
+        // const fileContent = readFileSync();
+        const result = await sql.file(migrationsDir + "/" + file).catch((error) => console.error(error));
+        if (!result) {
+            console.error(`Failed to run migration ${file} on app statup.`);
+            return false;
+        }
+
+        const insertMigration = await sql`
+            INSERT INTO migrations ${ sql({ fileName: file, createdDate: Date.now() }) };
+        `.catch((error) => console.error(error));
+        if (!insertMigration) {
+            console.error(`Failed to insert migration record for file ${file}`);
+            return false;
+        }
+
+        console.log(`Successfully ran migration ${file}`);
+    }
+    return true;
+}
