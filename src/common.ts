@@ -32,17 +32,20 @@ export class DiscordMessage {
 
 export async function saveMessages(messages: Message<true>[]): Promise<boolean> {
     let transformedMessages: DiscordMessage[] = [];
-    messages.forEach(message => transformedMessages.push(
-        new DiscordMessage({
-            id: message.id,
-            guildId: message.guildId,
-            channelId: message.channelId,
-            sentBy: message.author.username,
-            sentByDisplayName: message.author.displayName,
-            sentAt: message.createdTimestamp,
-            messageContent: message.content,
-            createdDate: Date.now()
-    })));
+    messages.forEach(message => {
+        if (message.content !== '') {
+            transformedMessages.push(new DiscordMessage({
+                id: message.id,
+                guildId: message.guildId,
+                channelId: message.channelId,
+                sentBy: message.author.username,
+                sentByDisplayName: message.author.displayName,
+                sentAt: message.createdTimestamp,
+                messageContent: message.content,
+                createdDate: Date.now()
+            }));
+        }
+    });
 
     if (transformedMessages.length === 0) return false;
 
