@@ -1,5 +1,5 @@
 import { Client, SlashCommandBuilder, TextChannel } from "discord.js";
-import { addChannelToListener, saveMessages } from "../common.ts";
+import { addChannelToListener, addErrorEmbed, addSuccessEmbed, saveMessages } from "../common.ts";
 import type { CommandType } from "../commands.ts";
 
 export const Harvest: CommandType = {
@@ -8,23 +8,25 @@ export const Harvest: CommandType = {
         .setDescription('Harvest all the messages from this channel for the bot to cache. Will listen after harvest.'),
     async execute(interaction): Promise<void> {
         if (!interaction.channelId || !interaction.guildId) {
-            await interaction.reply("Message was not sent from a channel within a guild somehow, can not harvest.")
+            await interaction.reply({ embeds: [addErrorEmbed("Message was not sent from a channel within a guild somehow, can not harvest.")] });
             return;
         }
 
-        await interaction.reply("Successfully queued message fetcher, this may take more than 15 minutes to complete so you may not get any further responses.");
+        await interaction.reply({ embeds: [addSuccessEmbed("Successfully queued message fetcher, this may take more than 15 minutes to complete so you may not get any further responses.")] });
 
         const listenToChannel = await addChannelToListener(interaction.channelId, interaction.guildId);
         if (!listenToChannel) {
-            await interaction.followUp("Unable to add channel to listener due to an error.");
+            await interaction.followUp({ embeds: [addErrorEmbed("Unable to add channel to listener due to an error.")] });
+            return;
         }
 
         const messagesResult = await getAllMessages(interaction.channelId, interaction.client);
         if (!messagesResult) {
-            await interaction.followUp("An error occurred while saving messages to the database.");
+            await interaction.followUp({ embeds: [addErrorEmbed("An error occurred while saving messages to the database.")] });
+            return;
         }
-        
-        await interaction.followUp("Messages were saved to DB successfully.");
+
+        await interaction.followUp({ embeds: [addSuccessEmbed("Messages were saved to DB successfully.")] });
     }
 }
 

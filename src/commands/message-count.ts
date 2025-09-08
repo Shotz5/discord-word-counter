@@ -1,12 +1,13 @@
 import { EmbedBuilder, SlashCommandBuilder, User } from "discord.js";
 import type { CommandType } from "../commands.ts";
 import sql from "../postgres.ts";
+import { addErrorEmbed } from "../common.ts";
 
 type MessageCountType = {
     count: number
 }
 
-export const addEmbed = (user: User, count: number) => {
+const addStatsEmbed = (user: User, count: number) => {
     return new EmbedBuilder()
         .setTitle("Discord Word Counter")
         .setAuthor({
@@ -41,7 +42,7 @@ export const MessageCount: CommandType = {
         const string = interaction.options.getString('string');
 
         if (!user || !string) {
-            await interaction.reply("Please supply both a user and a string to search for.");
+            await interaction.reply({ embeds: [addErrorEmbed("Please supply both a user and a string to search for.")] });
             return;
         }
 
@@ -49,11 +50,11 @@ export const MessageCount: CommandType = {
 
         const result = await getWordCount(user, string);
         if (result === false) {
-            await interaction.followUp({ embeds: [addEmbed(user, string)] });
+            await interaction.followUp({ embeds: [addErrorEmbed("An error occurred while executing the SQL query.")] });
             return;
         }
 
-        await interaction.followUp({ embeds: [addEmbed(user, result)] });
+        await interaction.followUp({ embeds: [addStatsEmbed(user, result)] });
     }
 }
 
@@ -66,12 +67,11 @@ async function getWordCount(user: User, word: string): Promise<number | false> {
         AND messages."sentBy" = ${user.username};
     `.catch((error) => console.error(error));
 
-    
     if (!sqlResult || !sqlResult[0]) {
         console.error("Unable to find count of word.");
         return false;
     }
 
-    console.log(sqlResult[0].count);
+    console.log(`Found ${sqlResult[0].count} messages matching string '${word}'.`);
     return sqlResult[0].count;
 }

@@ -1,4 +1,4 @@
-import type { Message } from "discord.js"
+import { Embed, EmbedBuilder, type Message } from "discord.js"
 import sql from "./postgres.ts"
 
 export type ChannelType = {
@@ -72,4 +72,18 @@ export async function addChannelToListener(channelId: string, guildId: string): 
     console.log(`Successfully inserted ${channelId} to DB.`);
 
     return true;
+}
+
+export function addErrorEmbed(message: string): EmbedBuilder {
+    return new EmbedBuilder()
+        .setTitle("Discord Word Counter")
+        .setDescription("Error")
+        .addFields({ name: "Message", value: message });
+}
+
+export function addSuccessEmbed(message: string): EmbedBuilder {
+    return new EmbedBuilder()
+        .setTitle("Discord Word Counter")
+        .setDescription("Success")
+        .addFields({ name: "Message", value: message });
 }

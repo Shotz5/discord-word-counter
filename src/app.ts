@@ -40,7 +40,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
 client.on(Events.MessageCreate, async interaction => {
     console.log(`Received message event with guild ${interaction.guildId} and channel ${interaction.channelId} with content '${interaction.content}'`);
-    if (!interaction.inGuild() || !interaction.channelId) return;
+    if (!interaction.inGuild() || !interaction.channelId || interaction.content === '') return;
 
     const channels = await getListenedChannelsForGuild(interaction.guildId);
     console.log(`Channels listening to in guild: ${channels}`);
